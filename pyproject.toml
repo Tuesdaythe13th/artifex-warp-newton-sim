@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "artifex-sim"
+version = "0.1.0"
+description = "NVIDIA Warp + Newton simulation stack for Artifex Labs injection-molded record manufacturing"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "warp-lang>=1.5.0",
+    "newton-physics>=0.3.0",
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+examples = [
+    "matplotlib>=3.7",
+    "pyvista>=0.42",
+]
+dev = [
+    "pytest>=7.0",
+    "mypy>=1.0",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+artifex-thermal = "artifex.thermal.disc_thermal:main"
+artifex-crystallinity = "artifex.thermal.crystallinity:main"
+artifex-thermal-opt = "artifex.thermal.optimization:main"
+artifex-cell = "artifex.cell.cell_scene:main"
+artifex-contact-qa = "artifex.cell.contact_qa:main"
+artifex-sensor-qa = "artifex.cell.sensor_qa:main"
+artifex-diffsim-opt = "artifex.cell.diffsim_opt:main"
+
+[tool.setuptools.packages.find]
+include = ["artifex*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true

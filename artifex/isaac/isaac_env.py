@@ -28,7 +28,7 @@ from typing import Any, Optional
 
 import numpy as np
 
-from artifex.properties import PET, DISC
+from artifex.properties import PET
 from artifex.config import IsaacConfig, CellConfig
 from artifex.cell.material_coupling import MaterialCoupling, HandlingRisk
 

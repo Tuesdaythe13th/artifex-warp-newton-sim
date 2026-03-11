@@ -35,7 +35,7 @@ import numpy as np
 
 import warp as wp
 
-from artifex.properties import PET, DISC
+from artifex.properties import PET
 from artifex.config import DiffSimConfig
 
 
@@ -97,8 +97,8 @@ class TrajectoryOptResult:
 
 @wp.kernel
 def trajectory_cost_kernel(
-    params: wp.array(dtype=float),
-    cost: wp.array(dtype=float),
+    params: wp.array(dtype=float),  # type: ignore
+    cost: wp.array(dtype=float),  # type: ignore
     w_time: float,
     w_force: float,
     w_accel: float,
@@ -230,11 +230,11 @@ class TrajectoryOptimizer:
             p_np -= cfg.lr * grad
 
             # Clamp to physically reasonable bounds
-            p_np[0] = np.clip(p_np[0], 0.05, 1.0)  # pick speed
-            p_np[1] = np.clip(p_np[1], 0.05, 2.0)  # transfer speed
-            p_np[2] = np.clip(p_np[2], 0.02, 0.5)  # place speed
-            p_np[3] = np.clip(p_np[3], 2.0, 25.0)  # grip force
-            p_np[4] = np.clip(p_np[4], 0.02, 0.30)  # transfer height
+            p_np[0] = np.clip(p_np[0], 0.05, 1.0)  # type: ignore
+            p_np[1] = np.clip(p_np[1], 0.05, 2.0)  # type: ignore
+            p_np[2] = np.clip(p_np[2], 0.02, 0.5)  # type: ignore
+            p_np[3] = np.clip(p_np[3], 2.0, 25.0)  # type: ignore
+            p_np[4] = np.clip(p_np[4], 0.02, 0.30)  # type: ignore
 
             params = wp.array(
                 p_np.tolist(), dtype=float, device=self.device, requires_grad=True,
@@ -305,7 +305,7 @@ def main() -> None:
 
     print()
     p = result.optimal_params
-    print(f"Optimal trajectory:")
+    print("Optimal trajectory:")
     print(f"  Pick speed:       {p.pick_speed:.3f} m/s")
     print(f"  Transfer speed:   {p.transfer_speed:.3f} m/s")
     print(f"  Place speed:      {p.place_speed:.3f} m/s")

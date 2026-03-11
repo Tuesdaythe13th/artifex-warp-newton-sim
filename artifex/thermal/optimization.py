@@ -31,7 +31,6 @@ import argparse
 from dataclasses import dataclass
 from typing import Optional
 
-import numpy as np
 
 import warp as wp
 

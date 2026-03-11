@@ -28,7 +28,7 @@ import numpy as np
 
 import warp as wp
 
-from artifex.properties import PET, DISC
+from artifex.properties import DISC
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

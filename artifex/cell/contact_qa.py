@@ -119,7 +119,7 @@ class ContactQA:
         cp = MaterialCoupling.newton_contact_params(mat_state)
 
         # Stack base (kinematic)
-        self._scene.add_rigid_body(
+        self._scene.add_rigid_body(  # type: ignore
             shape="box",
             half_extents=(0.16, 0.16, 0.01),
             pos=(0.0, 0.0, -0.01),
@@ -131,7 +131,7 @@ class ContactQA:
         self._disc_bodies = []
         for i in range(self.n_discs):
             z = DISC.thickness * (i + 0.5) + 0.002 * i  # 2 mm settling gap
-            body = self._scene.add_rigid_body(
+            body = self._scene.add_rigid_body(  # type: ignore
                 shape="cylinder",
                 radius=DISC.radius,
                 height=DISC.thickness,
@@ -160,16 +160,16 @@ class ContactQA:
             self.build()
 
         force_log: list[float] = []
-        slip_count = 0
+        slip_count: int = 0
 
         for step in range(settle_steps):
-            self._scene.step()
+            self._scene.step()  # type: ignore
 
             # Log contact forces
             step_max_force = 0.0
             for body in self._disc_bodies:
                 if hasattr(self._scene, "get_contact_forces"):
-                    forces = self._scene.get_contact_forces(body)
+                    forces = self._scene.get_contact_forces(body)  # type: ignore
                     if forces is not None:
                         mag = float(np.linalg.norm(forces))
                         step_max_force = max(step_max_force, mag)
@@ -179,7 +179,7 @@ class ContactQA:
             # Simple slip detection: if any disc moves laterally > threshold
             for body in self._disc_bodies:
                 if hasattr(self._scene, "get_body_velocity"):
-                    vel = self._scene.get_body_velocity(body)
+                    vel = self._scene.get_body_velocity(body)  # type: ignore
                     if vel is not None:
                         lateral = float(np.sqrt(vel[0] ** 2 + vel[1] ** 2))
                         if lateral > 0.01:  # 1 cm/s lateral velocity = slip
@@ -189,7 +189,7 @@ class ContactQA:
         stable = True
         if hasattr(self._scene, "get_body_position"):
             for body in self._disc_bodies:
-                pos = self._scene.get_body_position(body)
+                pos = self._scene.get_body_position(body)  # type: ignore
                 if pos is not None:
                     lateral_offset = float(np.sqrt(pos[0] ** 2 + pos[1] ** 2))
                     if lateral_offset > DISC.radius * 0.1:  # > 10 % of radius
@@ -250,7 +250,7 @@ def main() -> None:
     result = qa.run(settle_steps=args.settle_steps)
 
     print()
-    print(f"Contact QA results:")
+    print("Contact QA results:")
     print(f"  Discs:           {result.n_discs}")
     print(f"  Max force:       {result.max_contact_force:.2f} N")
     print(f"  Mean force:      {result.mean_contact_force:.2f} N")

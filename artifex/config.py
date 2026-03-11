@@ -191,7 +191,7 @@ class ArtifexConfig:
 
     def to_dict(self) -> dict[str, Any]:
         """Serialise to a nested dict (suitable for YAML dump)."""
-        return dataclasses.asdict(self)
+        return dataclasses.asdict(self)  # type: ignore
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ArtifexConfig":
@@ -203,10 +203,10 @@ class ArtifexConfig:
         diff_data: dict[str, Any] = data.get("diffsim", {})
         isaac_data: dict[str, Any] = data.get("isaac", {})
         return cls(
-            thermal=ThermalConfig(**thermal_data),
-            crystallinity=CrystallinityConfig(**cryst_data),
-            optimization=OptimizationConfig(**opt_data),
-            cell=CellConfig(**cell_data),
-            diffsim=DiffSimConfig(**diff_data),
-            isaac=IsaacConfig(**isaac_data),
+            thermal=ThermalConfig(**thermal_data),  # type: ignore
+            crystallinity=CrystallinityConfig(**cryst_data),  # type: ignore
+            optimization=OptimizationConfig(**opt_data),  # type: ignore
+            cell=CellConfig(**cell_data),  # type: ignore
+            diffsim=DiffSimConfig(**diff_data),  # type: ignore
+            isaac=IsaacConfig(**isaac_data),  # type: ignore
         )

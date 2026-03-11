@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+import typing
 from typing import Optional
 
 import numpy as np
@@ -185,7 +186,7 @@ class DiscThermalSim:
         )
 
         # Allocate DOF array and fill with T_melt (initial condition)
-        n_dofs = self._scalar_space.node_count()
+        n_dofs = self._scalar_space.node_count()  # type: ignore
         self._temperature_dofs = wp.zeros(n_dofs, dtype=float, device=self.device)
         wp.launch(
             kernel=_fill_constant,
@@ -284,7 +285,7 @@ class DiscThermalSim:
 
     # ── Multi-step run ───────────────────────────────────────────────────────
 
-    def run(self, callback=None) -> list[ThermalResult]:
+    def run(self, callback: typing.Callable[[int, ThermalResult], None] | None = None) -> list[ThermalResult]:
         """Run the full cooling simulation.
 
         Parameters
@@ -317,7 +318,7 @@ class DiscThermalSim:
 
     def get_result(self) -> ThermalResult:
         """Snapshot the current temperature field as a ``ThermalResult``."""
-        t_np = self._temperature_dofs.numpy()
+        t_np = self._temperature_dofs.numpy()  # type: ignore
         return ThermalResult(
             time=self._time,
             temperature=t_np.copy(),
@@ -328,11 +329,11 @@ class DiscThermalSim:
 
     def get_temperature_field(self) -> np.ndarray:
         """Return the nodal temperature field as a numpy array (°C)."""
-        return self._temperature_dofs.numpy().copy()
+        return self._temperature_dofs.numpy().copy()  # type: ignore
 
     def is_below_tg(self, margin: float = 0.0) -> bool:
         """Check if all nodes have cooled below T_g – margin."""
-        t_np = self._temperature_dofs.numpy()
+        t_np = self._temperature_dofs.numpy()  # type: ignore
         return bool(np.max(t_np) < PET.glass_transition_nominal - margin)
 
 
@@ -342,14 +343,14 @@ class DiscThermalSim:
 
 
 @wp.kernel
-def _fill_constant(field: wp.array(dtype=float), value: float):
+def _fill_constant(field: wp.array(dtype=float), value: float):  # type: ignore
     """Fill a 1-D array with a constant value."""
     i = wp.tid()
     field[i] = value
 
 
 @wp.kernel
-def _axpy_vectors(y: wp.array(dtype=float), x: wp.array(dtype=float), alpha: float):
+def _axpy_vectors(y: wp.array(dtype=float), x: wp.array(dtype=float), alpha: float):  # type: ignore
     """y[i] += alpha * x[i]."""
     i = wp.tid()
     y[i] = y[i] + alpha * x[i]

@@ -17,7 +17,7 @@ Based on the Newton ``sensor_contact`` example
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 import numpy as np
@@ -122,7 +122,7 @@ class SensorQA:
         )
 
         # Sensor pad (kinematic, represents the interferometer stage)
-        self._sensor_pad = self._scene.add_rigid_body(
+        self._sensor_pad = self._scene.add_rigid_body(  # type: ignore
             shape="cylinder",
             radius=self.zone_radius,
             height=0.005,
@@ -132,7 +132,7 @@ class SensorQA:
         )
 
         # Disc placed slightly above the pad (simulates robot release)
-        self._disc = self._scene.add_rigid_body(
+        self._disc = self._scene.add_rigid_body(  # type: ignore
             shape="cylinder",
             radius=DISC.radius,
             height=DISC.thickness,
@@ -160,12 +160,12 @@ class SensorQA:
         sim_dt = self.config.sim_dt
 
         for step in range(n_steps):
-            self._scene.step()
+            self._scene.step()  # type: ignore
             t = step * sim_dt
 
             # ── Proximity check ──────────────────────────────────────────
             if self._disc is not None and hasattr(self._scene, "get_body_position"):
-                pos = self._scene.get_body_position(self._disc)
+                pos = self._scene.get_body_position(self._disc)  # type: ignore
                 if pos is not None:
                     # Check if disc centre is within the sensor zone cylinder
                     lateral = float(np.sqrt(pos[0] ** 2 + pos[1] ** 2))
@@ -185,7 +185,7 @@ class SensorQA:
             if self._sensor_pad is not None and hasattr(
                 self._scene, "get_contact_forces"
             ):
-                forces = self._scene.get_contact_forces(self._sensor_pad)
+                forces = self._scene.get_contact_forces(self._sensor_pad)  # type: ignore
                 if forces is not None:
                     mag = float(np.linalg.norm(forces))
                     if mag > 0.01:  # minimum threshold to count
@@ -233,7 +233,7 @@ def main() -> None:
     result = qa.run(n_steps=args.n_steps)
 
     print()
-    print(f"Sensor QA results:")
+    print("Sensor QA results:")
     print(f"  Disc detected:     {'YES' if result.disc_detected else 'NO'}")
     print(f"  Arrival time:      {result.arrival_time:.3f} s")
     print(f"  Dwell time:        {result.dwell_time:.3f} s")

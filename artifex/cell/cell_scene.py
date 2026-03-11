@@ -30,8 +30,7 @@ References
 from __future__ import annotations
 
 import argparse
-import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 import numpy as np
@@ -45,7 +44,7 @@ import warp as wp
 
 from artifex.properties import PET, DISC
 from artifex.config import CellConfig
-from artifex.cell.material_coupling import MaterialCoupling, MaterialState
+from artifex.cell.material_coupling import MaterialCoupling
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -146,7 +145,7 @@ class ArtifexCellScene:
         scene = self._scene
 
         # ── Robot arm (UR10 from URDF) ───────────────────────────────────
-        self._robot = scene.add_articulation(
+        self._robot = scene.add_articulation(  # type: ignore
             urdf_path=cfg.robot_urdf,
             pos=ROBOT_BASE_POS,
             name="ur10_arm",
@@ -156,7 +155,7 @@ class ArtifexCellScene:
         mat_state = self._coupling.evaluate_scalar(cfg.disc_eject_temperature)
         contact_params = MaterialCoupling.newton_contact_params(mat_state)
 
-        self._disc = scene.add_rigid_body(
+        self._disc = scene.add_rigid_body(  # type: ignore
             shape="cylinder",
             radius=DISC.radius,
             height=DISC.thickness,
@@ -169,7 +168,7 @@ class ArtifexCellScene:
         )
 
         # ── Press platen (kinematic) ─────────────────────────────────────
-        self._press = scene.add_rigid_body(
+        self._press = scene.add_rigid_body(  # type: ignore
             shape="box",
             half_extents=(0.2, 0.2, 0.05),
             pos=(PRESS_POS[0], PRESS_POS[1], -0.05),
@@ -178,7 +177,7 @@ class ArtifexCellScene:
         )
 
         # ── Conveyor belt ────────────────────────────────────────────────
-        self._conveyor = scene.add_conveyor(
+        self._conveyor = scene.add_conveyor(  # type: ignore
             pos=CONVEYOR_POS,
             length=0.6,
             width=0.2,
@@ -187,7 +186,7 @@ class ArtifexCellScene:
         )
 
         # ── QA station (static fixture) ──────────────────────────────────
-        scene.add_rigid_body(
+        scene.add_rigid_body(  # type: ignore
             shape="box",
             half_extents=(0.1, 0.1, 0.02),
             pos=QA_STATION_POS,
@@ -196,7 +195,7 @@ class ArtifexCellScene:
         )
 
         # ── Stack fixture ────────────────────────────────────────────────
-        scene.add_rigid_body(
+        scene.add_rigid_body(  # type: ignore
             shape="box",
             half_extents=(0.16, 0.16, 0.01),
             pos=STACK_POS,
@@ -214,7 +213,7 @@ class ArtifexCellScene:
         """Advance the Newton scene by one time step."""
         if self._scene is None:
             raise RuntimeError("Call build() before step().")
-        self._scene.step()
+        self._scene.step()  # type: ignore
 
     def run(self, n_steps: Optional[int] = None) -> CellMetrics:
         """Run a full eject → pick → transfer → inspect → stack cycle.
@@ -240,14 +239,14 @@ class ArtifexCellScene:
 
         max_force = 0.0
         max_accel = 0.0
-        scrap = 0
+        scrap: int = 0
 
         for i in range(n_steps):
             self.step()
 
             # ── Log contact forces on the disc ───────────────────────────
             if self._disc is not None and hasattr(self._scene, "get_contact_forces"):
-                forces = self._scene.get_contact_forces(self._disc)
+                forces = self._scene.get_contact_forces(self._disc)  # type: ignore
                 if forces is not None:
                     force_mag = float(np.linalg.norm(forces))
                     max_force = max(max_force, force_mag)
@@ -258,7 +257,7 @@ class ArtifexCellScene:
 
             # ── Log disc acceleration ────────────────────────────────────
             if self._disc is not None and hasattr(self._scene, "get_body_acceleration"):
-                accel = self._scene.get_body_acceleration(self._disc)
+                accel = self._scene.get_body_acceleration(self._disc)  # type: ignore
                 if accel is not None:
                     accel_mag = float(np.linalg.norm(accel))
                     max_accel = max(max_accel, accel_mag)
@@ -316,7 +315,7 @@ def main() -> None:
     metrics = cell.run(n_steps=args.n_steps)
 
     print()
-    print(f"Cell metrics:")
+    print("Cell metrics:")
     print(f"  Cycle time:            {metrics.cycle_time:.2f} s")
     print(f"  Max groove force:      {metrics.max_groove_contact_force:.2f} N")
     print(f"  Max disc acceleration: {metrics.max_disc_acceleration:.2f} m/s²")

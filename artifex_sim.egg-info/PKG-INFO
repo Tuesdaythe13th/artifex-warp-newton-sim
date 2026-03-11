@@ -1,0 +1,162 @@
+Metadata-Version: 2.4
+Name: artifex-sim
+Version: 0.1.0
+Summary: NVIDIA Warp + Newton simulation stack for Artifex Labs injection-molded record manufacturing
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: warp-lang>=1.5.0
+Requires-Dist: newton-physics>=0.3.0
+Requires-Dist: numpy>=1.24
+Provides-Extra: examples
+Requires-Dist: matplotlib>=3.7; extra == "examples"
+Requires-Dist: pyvista>=0.42; extra == "examples"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: mypy>=1.0; extra == "dev"
+Requires-Dist: ruff>=0.4; extra == "dev"
+
+# Artifex Labs — Warp + Newton Simulation Stack
+
+NVIDIA Warp + Newton simulation stack for Artifex Labs injection-molded record manufacturing — thermal FEM, robot cell physics, and Isaac Sim digital twin.
+
+## Architecture
+
+The stack is organized into three simulation layers:
+
+| Layer | Engine | Purpose |
+|-------|--------|---------|
+| **Layer 1** | NVIDIA Warp (FEM + kernels) | Disc thermal simulation, crystallinity tracking, stress estimation, process optimization |
+| **Layer 2** | Newton | Robot cell physics — pick, transfer, inspect, stack with contact forces |
+| **Layer 3** | Isaac Lab / Omniverse | Digital twin orchestration, RL policy training, fleet-scale simulation |
+
+Each layer maps to the Artifex process window: **250–290 °C** melt, **80–110 °C** mold, **15–25 s** cycle, **0.70 ± 0.03 µm** groove depth, and scale-out to a **48-cell manufacturing fleet**.
+
+> **Note:** Newton is in active alpha development as of March 2026. Its Isaac Lab integration is documented as experimental. Layer 2 and 3 code targets the publicly documented API and should be expected to require updates as Newton stabilizes.
+
+## Installation
+
+```bash
+# Core installation
+pip install -e .
+
+# With example/visualization extras
+pip install -e ".[examples]"
+
+# Development tools
+pip install -e ".[dev]"
+```
+
+**Requirements:**
+- Python 3.10+
+- NVIDIA GPU (Maxwell+), driver 545+ for GPU execution
+- macOS runs on CPU only
+
+## Module Overview
+
+```
+artifex/
+├── properties.py              # PET material constants & disc geometry
+├── config.py                  # Simulation configuration dataclasses
+├── thermal/                   # Layer 1 — Warp
+│   ├── disc_thermal.py        #   Transient heat diffusion FEM
+│   ├── crystallinity.py       #   Avrami crystallinity proxy kernel
+│   ├── stress_estimate.py     #   Through-thickness stress proxy
+│   └── optimization.py        #   Differentiable process optimization
+├── cell/                      # Layer 2 — Newton
+│   ├── cell_scene.py          #   Single manufacturing cell scene
+│   ├── material_coupling.py   #   Temperature → mechanical property bridge
+│   ├── contact_qa.py          #   Disc stacking & contact force QA
+│   ├── sensor_qa.py           #   QA sensor simulation
+│   └── diffsim_opt.py         #   Differentiable trajectory optimization
+└── isaac/                     # Layer 3 — Isaac Lab
+    └── isaac_env.py           #   RL environment for adaptive pick timing
+```
+
+## Quick Start
+
+### Layer 1 — Thermal Simulation
+
+```bash
+# Run transient cooling simulation
+artifex-thermal --mold-temp 95 --melt-temp 270 --total-time 20 --device cuda:0
+
+# Crystallinity proxy (standalone demo)
+artifex-crystallinity --total-time 20 --device cuda:0
+
+# Differentiable process optimization
+artifex-thermal-opt --max-iter 100 --lr 0.5 --device cuda:0
+```
+
+### Layer 2 — Robot Cell
+
+```bash
+# Single-cell Newton simulation
+artifex-cell --eject-temp 85 --device cuda:0
+
+# Disc stacking contact QA
+artifex-contact-qa --n-discs 10 --disc-temp 70 --device cuda:0
+
+# QA sensor simulation
+artifex-sensor-qa --n-steps 1000 --device cuda:0
+
+# Trajectory optimization
+artifex-diffsim-opt --max-iter 200 --lr 1e-3 --device cuda:0
+```
+
+### Python API
+
+```python
+from artifex.thermal.disc_thermal import DiscThermalSim
+from artifex.thermal.crystallinity import CrystallinityTracker
+from artifex.config import ThermalConfig
+
+config = ThermalConfig(mold_temperature=95.0, melt_temperature=270.0)
+sim = DiscThermalSim(config=config, device="cuda:0")
+sim.setup()
+
+results = sim.run()
+print(f"Final T_max = {results[-1].max_temp:.1f} °C")
+print(f"Below T_g: {sim.is_below_tg()}")
+```
+
+## PET Material Properties
+
+| Property | Value | Unit | Notes |
+|----------|------:|------|-------|
+| Density (ρ) | 1,350 | kg/m³ | Amorphous r-PET |
+| Specific heat (c_p) | 1,200 | J/kg·K | Near T_g |
+| Thermal conductivity (k) | 0.15–0.24 | W/m·K | Drives slow cooling |
+| Glass transition (T_g) | 70–80 | °C | Safe-handling threshold |
+| Melt temperature | 250–290 | °C | Injection window |
+| Mold temperature | 80–110 | °C | Cooling BC |
+| Disc mass | 140 | g | 12-inch LP |
+| Disc thickness | 1.8–2.0 | mm | Cooling-critical |
+| Young's modulus (glassy) | 2.2–3.0 | GPa | Below T_g |
+| Young's modulus (rubbery) | ~1.0 | GPa | Above T_g |
+
+## Implementation Roadmap
+
+| Phase | Scope | Weeks |
+|-------|-------|-------|
+| 1 | Warp thermal MVP — cooling FEM, crystallinity, analytical validation | 1–4 |
+| 2 | Crystallinity + stress coupling, process map | 3–6 |
+| 3 | Newton single-cell handling, Layer 1→2 coupling | 5–8 |
+| 4 | Isaac Lab task integration, RL training | 7–10 |
+| 5 | Fleet-scale 48-cell orchestration | 9–12 |
+
+## Key Design Decisions
+
+**Layer 1 first.** Warp FEM is stable and documented. The thermal model should be numerically credible before Newton/Isaac dependencies are exercised.
+
+**Lumped-capacitance optimiser.** The `optimization.py` inner loop uses a simplified 0-D cooling model for fast autodiff iteration. The full FEM solver validates the optimal parameters post-hoc.
+
+**Sigmoid material coupling.** Temperature → Young's modulus uses a smooth sigmoid centred on T_g rather than a discontinuous step, which is both more physical and more compatible with gradient-based optimization.
+
+**Newton optional import.** Layer 2 modules use `try: import newton` to remain importable and type-checkable without Newton installed.
+
+## References
+
+- [NVIDIA Warp](https://nvidia.github.io/warp/) — FEM, kernels, autodiff
+- [Newton](https://github.com/newton-physics/newton) — GPU physics engine
+- [Isaac Lab Newton integration](https://isaac-sim.github.io/IsaacLab/main/source/experimental-features/newton-physics-integration/index.html) — experimental

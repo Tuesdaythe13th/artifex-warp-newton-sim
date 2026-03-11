@@ -1,0 +1,12 @@
+warp-lang>=1.5.0
+newton-physics>=0.3.0
+numpy>=1.24
+
+[dev]
+pytest>=7.0
+mypy>=1.0
+ruff>=0.4
+
+[examples]
+matplotlib>=3.7
+pyvista>=0.42

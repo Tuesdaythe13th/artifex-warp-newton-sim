@@ -1,0 +1,8 @@
+[console_scripts]
+artifex-cell = artifex.cell.cell_scene:main
+artifex-contact-qa = artifex.cell.contact_qa:main
+artifex-crystallinity = artifex.thermal.crystallinity:main
+artifex-diffsim-opt = artifex.cell.diffsim_opt:main
+artifex-sensor-qa = artifex.cell.sensor_qa:main
+artifex-thermal = artifex.thermal.disc_thermal:main
+artifex-thermal-opt = artifex.thermal.optimization:main

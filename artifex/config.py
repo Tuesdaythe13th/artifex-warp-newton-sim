@@ -42,9 +42,9 @@ class ThermalConfig:
     total_time: float = 20.0  # seconds (midpoint of 15–25 s window)
 
     # Boundary conditions
-    mold_temperature: float = 95.0  # °C (midpoint of 80–110)
+    mold_temperature: float = 60.0  # °C (Rev 1.0 target)
     melt_temperature: float = 270.0  # °C (midpoint of 250–290)
-    thermal_conductivity: float = 0.20  # W/(m·K) (nominal)
+    thermal_conductivity: float = 0.24  # W/(m·K) (Rev 1.0)
     convection_coeff: float = 10.0  # W/(m²·K) — natural convection
     ambient_temperature: float = 25.0  # °C
 
@@ -90,10 +90,10 @@ class OptimizationConfig:
 
     lr: float = 0.5
     max_iterations: int = 100
-    weight_crystallinity: float = 10.0
+    weight_crystallinity: float = 15.0  # Increased for transparency (Rev 1.0)
     weight_gradient: float = 5.0
     weight_cycle_time: float = 1.0
-    weight_final_temp: float = 8.0
+    weight_final_temp: float = 25.0  # Significantly increased to prevent warpage (Rev 1.0)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -119,7 +119,7 @@ class CellConfig:
     robot_urdf: str = "ur10.urdf"
     sim_dt: float = 1.0 / 120.0  # 120 Hz
     sim_substeps: int = 4
-    disc_eject_temperature: float = 85.0  # °C — from Layer 1
+    disc_eject_temperature: float = 60.0  # °C (Rev 1.0 — must be < 70°C)
     gripper_max_force: float = 20.0  # N
     conveyor_speed: float = 0.3  # m/s
     stack_height_limit: int = 25

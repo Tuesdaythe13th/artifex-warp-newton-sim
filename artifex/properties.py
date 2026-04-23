@@ -34,16 +34,16 @@ class PETProperties:
     # --- Thermal ---
     density: float = 1350.0  # kg/m³
     specific_heat: float = 1200.0  # J/(kg·K)
-    thermal_conductivity_lo: float = 0.15  # W/(m·K)
-    thermal_conductivity_hi: float = 0.24  # W/(m·K)
+    thermal_conductivity_lo: float = 0.20  # W/(m·K)
+    thermal_conductivity_hi: float = 0.24  # W/(m·K) (Rev 1.0)
 
     # --- Phase transitions ---
     glass_transition_lo: float = 70.0  # °C
     glass_transition_hi: float = 80.0  # °C
     melt_temp_lo: float = 250.0  # °C
     melt_temp_hi: float = 290.0  # °C
-    mold_temp_lo: float = 80.0  # °C
-    mold_temp_hi: float = 110.0  # °C
+    mold_temp_lo: float = 55.0  # °C (Rev 1.0 — 60°C target)
+    mold_temp_hi: float = 65.0  # °C (Rev 1.0)
 
     # --- Mechanical ---
     youngs_modulus_glassy: float = 2.5e9  # Pa (2.2–3.0 GPa, nominal)

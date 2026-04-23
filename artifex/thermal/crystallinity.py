@@ -42,9 +42,9 @@ from artifex.config import CrystallinityConfig
 
 @wp.kernel
 def avrami_step_kernel(
-    temperature: wp.array(dtype=float),
-    chi: wp.array(dtype=float),
-    residence_time: wp.array(dtype=float),
+    temperature: wp.array(dtype=float),  # type: ignore
+    chi: wp.array(dtype=float),  # type: ignore
+    residence_time: wp.array(dtype=float),  # type: ignore
     dt: float,
     chi_inf: float,
     avrami_n: float,
@@ -82,8 +82,8 @@ def avrami_step_kernel(
 
 @wp.kernel
 def _max_reduce_kernel(
-    data: wp.array(dtype=float),
-    result: wp.array(dtype=float),
+    data: wp.array(dtype=float),  # type: ignore
+    result: wp.array(dtype=float),  # type: ignore
 ):
     """Single-pass max reduction (thread 0 writes final result).
 

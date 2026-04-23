@@ -89,9 +89,9 @@ class DiscMaterialField:
 
 @wp.kernel
 def evaluate_material_kernel(
-    temperature: wp.array(dtype=float),
-    youngs_modulus: wp.array(dtype=float),
-    friction: wp.array(dtype=float),
+    temperature: wp.array(dtype=float),  # type: ignore
+    youngs_modulus: wp.array(dtype=float),  # type: ignore
+    friction: wp.array(dtype=float),  # type: ignore
     e_glassy: float,
     e_rubbery: float,
     t_g: float,

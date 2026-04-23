@@ -38,8 +38,8 @@ from artifex.properties import DISC
 
 @wp.kernel
 def compute_z_gradient_kernel(
-    temperature: wp.array(dtype=float),
-    gradient_z: wp.array(dtype=float),
+    temperature: wp.array(dtype=float),  # type: ignore
+    gradient_z: wp.array(dtype=float),  # type: ignore
     nx: int,
     ny: int,
     nz: int,
@@ -90,9 +90,9 @@ def compute_z_gradient_kernel(
 
 @wp.kernel
 def thermal_stress_proxy_kernel(
-    gradient_z: wp.array(dtype=float),
-    stress_proxy: wp.array(dtype=float),
-    temperature: wp.array(dtype=float),
+    gradient_z: wp.array(dtype=float),  # type: ignore
+    stress_proxy: wp.array(dtype=float),  # type: ignore
+    temperature: wp.array(dtype=float),  # type: ignore
     alpha_cte: float,
 ):
     """Map gradient magnitude to a stress-risk metric.

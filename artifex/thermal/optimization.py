@@ -45,8 +45,8 @@ from artifex.config import OptimizationConfig, ThermalConfig, CrystallinityConfi
 
 @wp.kernel
 def simple_cooling_kernel(
-    temperature: wp.array(dtype=float),
-    mold_temp: wp.array(dtype=float),
+    temperature: wp.array(dtype=float),  # type: ignore
+    mold_temp: wp.array(dtype=float),  # type: ignore
     melt_temp: float,
     k_eff: float,
     dt: float,
@@ -67,9 +67,9 @@ def simple_cooling_kernel(
 
 @wp.kernel
 def crystallinity_penalty_kernel(
-    temperature: wp.array(dtype=float),
-    residence_time: wp.array(dtype=float),
-    chi_out: wp.array(dtype=float),
+    temperature: wp.array(dtype=float),  # type: ignore
+    residence_time: wp.array(dtype=float),  # type: ignore
+    chi_out: wp.array(dtype=float),  # type: ignore
     dt: float,
     chi_inf: float,
     avrami_n: float,
@@ -92,9 +92,9 @@ def crystallinity_penalty_kernel(
 
 @wp.kernel
 def loss_kernel(
-    temperature: wp.array(dtype=float),
-    chi: wp.array(dtype=float),
-    loss: wp.array(dtype=float),
+    temperature: wp.array(dtype=float),  # type: ignore
+    chi: wp.array(dtype=float),  # type: ignore
+    loss: wp.array(dtype=float),  # type: ignore
     t_g: float,
     w_chi: float,
     w_temp: float,

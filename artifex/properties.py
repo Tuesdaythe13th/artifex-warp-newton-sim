@@ -50,7 +50,7 @@ class PETProperties:
     youngs_modulus_rubbery: float = 1.0e9  # Pa (~1.0 GPa above T_g)
 
     # --- Mass ---
-    disc_mass: float = 0.140  # kg (140 g, 12-inch LP)
+    disc_mass: float = 0.180  # kg (180 g ± 2g, Rev 6.3)
 
     @property
     def thermal_conductivity_nominal(self) -> float:
@@ -123,8 +123,8 @@ class DiscGeometry:
 
     diameter: float = 0.305  # m (305 mm)
     thickness: float = 0.0019  # m (1.9 mm, midpoint of 1.8–2.0)
-    groove_depth_target: float = 0.70e-6  # m (0.70 µm)
-    groove_depth_tolerance: float = 0.03e-6  # m (±0.03 µm)
+    groove_depth_target: float = 35.0e-6  # m (35 µm, Rev 6.3 range 25–50)
+    groove_depth_tolerance: float = 5.0e-6  # m (±5 µm)
 
     @property
     def radius(self) -> float:
@@ -149,8 +149,8 @@ class ProcessWindow:
         uptime_target: Target uptime fraction.
     """
 
-    cycle_time_lo: float = 15.0  # s
-    cycle_time_hi: float = 25.0  # s
+    cycle_time_lo: float = 30.0  # s
+    cycle_time_hi: float = 45.0  # s (Rev 6.3 Target)
     max_crystallinity: float = 0.05  # 5 %
     fleet_size: int = 48
     uptime_target: float = 0.85  # 85 %

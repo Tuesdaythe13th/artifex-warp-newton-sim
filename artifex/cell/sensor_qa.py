@@ -51,14 +51,14 @@ class SensorResult:
     departure_time: float = -1.0
     dwell_time: float = 0.0
     
-    # Process Telemetry (Simulated)
+    # Process Telemetry (Simulated Rev 6.3)
     melt_temp_C: float = 270.0
     mold_temp_C: float = 60.0
-    hold_duration_s: float = 3.5
+    hold_duration_s: float = 12.0  # Rev 6.3 Hold
     disc_weight_g: float = 180.0
     
-    # Metrology (Simulated WLI)
-    groove_depth_um: float = 0.70
+    # Metrology (Simulated Vision/Audit)
+    groove_depth_um: float = 35.0  # Base depth (Rev 6.3)
     eject_temp_C: float = 60.0
     crystallinity_proxy: float = 0.02  # 2% fraction
     
@@ -148,9 +148,9 @@ class SensorQA:
         )
 
     def validate_disc(self, result: SensorResult) -> None:
-        """Validate a disc against the Rev 1.0 Quarantine Thresholds.
+        """Validate a disc against the Rev 6.3 Quarantine Thresholds.
         
-        Applies the hard-coded triggers from the Engineering Specification.
+        Applies the hard-coded triggers from the Lean Build Specification.
         """
         # 1. Melt Temperature (270 ± 5°C)
         if result.melt_temp_C > 275.0 or result.melt_temp_C < 265.0:
@@ -158,26 +158,26 @@ class SensorQA:
             result.quarantine_reason = "MELT_TEMP_OUT_OF_BOUNDS"
             return
 
-        # 2. Mold Temperature (60 ± 3°C)
-        if result.mold_temp_C > 63.0 or result.mold_temp_C < 57.0:
+        # 2. Mold Temperature (60 ± 2°C per Rev 6.3 PID spec)
+        if result.mold_temp_C > 62.0 or result.mold_temp_C < 58.0:
             result.pass_qa = False
             result.quarantine_reason = "MOLD_TEMP_OUT_OF_BOUNDS"
             return
 
-        # 3. Hold Duration (2.0–5.0 s window)
-        if result.hold_duration_s < 1.8 or result.hold_duration_s > 6.0:
+        # 3. Hold Duration (Rev 6.3 target is 12s)
+        if result.hold_duration_s < 10.0 or result.hold_duration_s > 15.0:
             result.pass_qa = False
             result.quarantine_reason = "HOLD_DURATION_VIOLATION"
             return
 
-        # 4. Disc Weight (180 ± 2 g)
+        # 4. Disc Weight (180 ± 2 g per Rev 6.3)
         if result.disc_weight_g > 182.0 or result.disc_weight_g < 178.0:
             result.pass_qa = False
             result.quarantine_reason = "DISC_WEIGHT_OUT_OF_TOLERANCE"
             return
 
-        # 5. Groove Depth (0.70 ± 0.1 µm — WLI)
-        if result.groove_depth_um > 0.80 or result.groove_depth_um < 0.60:
+        # 5. Groove Depth (25–50 µm spot check — Rev 6.3)
+        if result.groove_depth_um > 50.0 or result.groove_depth_um < 25.0:
             result.pass_qa = False
             result.quarantine_reason = "GROOVE_DEPTH_OUT_OF_SPEC"
             return
@@ -279,7 +279,7 @@ def main() -> None:
     print(f"  Arrival time:      {result.arrival_time:.3f} s")
     print(f"  Dwell time:        {result.dwell_time:.3f} s")
     print(f"  Melt / Mold Temp:  {result.melt_temp_C:.1f} / {result.mold_temp_C:.1f} °C")
-    print(f"  Groove Depth (WLI): {result.groove_depth_um:.3f} µm")
+    print(f"  Groove Depth (Audit): {result.groove_depth_um:.1f} µm")
     print(f"  Eject Temp (IR):   {result.eject_temp_C:.1f} °C")
     print(f"  QA result:         {'PASS ✓' if result.pass_qa else 'FAIL ✗'}")
     if not result.pass_qa and result.quarantine_reason:

@@ -39,7 +39,7 @@ class ThermalConfig:
 
     # Time stepping
     dt: float = 0.1  # seconds
-    total_time: float = 20.0  # seconds (midpoint of 15–25 s window)
+    total_time: float = 45.0  # seconds (Rev 6.3 Target Cycle)
 
     # Boundary conditions
     mold_temperature: float = 60.0  # °C (Rev 1.0 target)

@@ -10,9 +10,9 @@ The stack is organized into three simulation layers:
 |-------|--------|---------|
 | **Layer 1** | NVIDIA Warp (FEM + kernels) | Disc thermal simulation, crystallinity tracking, stress estimation, process optimization |
 | **Layer 2** | Newton | Robot cell physics — pick, transfer, inspect, stack with contact forces |
-| **Layer 3** | Isaac Lab / Omniverse | Digital twin orchestration, RL policy training, fleet-scale simulation |
+| **Layer 3** | Isaac Lab / Omniverse | **Digital twin orchestration** (Rev 6.3), RL policy training, fleet-scale simulation |
 
-Each layer maps to the Artifex process window: **250–290 °C** melt, **80–110 °C** mold, **15–25 s** cycle, **0.70 ± 0.03 µm** groove depth, and scale-out to a **48-cell manufacturing fleet**.
+Each layer maps to the Artifex Rev 6.3 process window: **270 °C** melt, **60 °C** mold, **45 s** cycle, **35 µm** groove depth, and scale-out to a **48-cell manufacturing fleet**.
 
 > **Note:** Newton is in active alpha development as of March 2026. Its Isaac Lab integration is documented as experimental. Layer 2 and 3 code targets the publicly documented API and should be expected to require updates as Newton stabilizes.
 
@@ -49,8 +49,9 @@ artifex/
 │   ├── cell_scene.py          #   Single manufacturing cell scene
 │   ├── material_coupling.py   #   Temperature → mechanical property bridge
 │   ├── contact_qa.py          #   Disc stacking & contact force QA
-│   ├── sensor_qa.py           #   QA sensor simulation
-│   └── diffsim_opt.py         #   Differentiable trajectory optimization
+│   ├── sensor_qa.py           #   QA sensor simulation (Rev 6.3 Quarantine Schema)
+│   ├── diffsim_opt.py         #   Differentiable trajectory optimization
+│   └── digital_twin.py        #   P2V Telemetry synchronization (Omniverse)
 └── isaac/                     # Layer 3 — Isaac Lab
     └── isaac_env.py           #   RL environment for adaptive pick timing
 ```
@@ -60,8 +61,8 @@ artifex/
 ### Layer 1 — Thermal Simulation
 
 ```bash
-# Run transient cooling simulation
-artifex-thermal --mold-temp 95 --melt-temp 270 --total-time 20 --device cuda:0
+# Run transient cooling simulation (Rev 6.3)
+artifex-thermal --mold-temp 60 --melt-temp 270 --total-time 45 --device cuda:0
 
 # Crystallinity proxy (standalone demo)
 artifex-crystallinity --total-time 20 --device cuda:0
@@ -84,6 +85,15 @@ artifex-sensor-qa --n-steps 1000 --device cuda:0
 
 # Trajectory optimization
 artifex-diffsim-opt --max-iter 200 --lr 1e-3 --device cuda:0
+
+### Layer 3 — Digital Twin (Omniverse)
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tuesdaythe13th/artifex-warp-newton-sim/blob/main/artifex_digital_twin_demo.ipynb)
+
+```bash
+# Run real-time digital twin (simulated telemetry)
+artifex-digital-twin --device cuda:0
+```
 ```
 
 ### Python API
@@ -108,13 +118,13 @@ print(f"Below T_g: {sim.is_below_tg()}")
 |----------|------:|------|-------|
 | Density (ρ) | 1,350 | kg/m³ | Amorphous r-PET |
 | Specific heat (c_p) | 1,200 | J/kg·K | Near T_g |
-| Thermal conductivity (k) | 0.15–0.24 | W/m·K | Drives slow cooling |
+| Thermal conductivity (k) | 0.20–0.24 | W/m·K | Drives cooling (Rev 6.3) |
 | Glass transition (T_g) | 70–80 | °C | Safe-handling threshold |
-| Melt temperature | 250–290 | °C | Injection window |
-| Mold temperature | 80–110 | °C | Cooling BC |
-| Disc mass | 140 | g | 12-inch LP |
+| Melt temperature | 270 | °C | Injection window |
+| Mold temperature | 60 | °C | Cooling BC (Rev 6.3) |
+| Disc mass | 180 | g | 12-inch LP (Rev 6.3) |
 | Disc thickness | 1.8–2.0 | mm | Cooling-critical |
-| Young's modulus (glassy) | 2.2–3.0 | GPa | Below T_g |
+| Young's modulus (glassy) | 2.5 | GPa | Below T_g |
 | Young's modulus (rubbery) | ~1.0 | GPa | Above T_g |
 
 ## Implementation Roadmap

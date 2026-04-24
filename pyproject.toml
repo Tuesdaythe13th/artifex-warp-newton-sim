@@ -34,6 +34,7 @@ artifex-cell = "artifex.cell.cell_scene:main"
 artifex-contact-qa = "artifex.cell.contact_qa:main"
 artifex-sensor-qa = "artifex.cell.sensor_qa:main"
 artifex-diffsim-opt = "artifex.cell.diffsim_opt:main"
+artifex-digital-twin = "artifex.cell.digital_twin:main"
 
 [tool.setuptools.packages.find]
 include = ["artifex*"]
